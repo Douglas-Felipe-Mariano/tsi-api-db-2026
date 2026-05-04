@@ -1,12 +1,12 @@
 import { Router, type Request, type Response } from "express";
-//import { db } from "../database/db";
-import { prisma } from "../prisma";
+import type sqlite3 from "sqlite3";
+import { db } from "../database/db";
 import type { Genero } from "../model/Genero";
 
 const router = Router();
 
 router.get("/", (req: Request, res: Response) => {
-    db.all("SELECT * FROM generos", (erro, linhas) => {
+    db.all("SELECT * FROM generos", (erro: Error | null, linhas: Genero[]) => {
         if(erro) {
             return res.status(500).json(
                 {erro: "Erro ao buscar gêneros"}
@@ -28,7 +28,7 @@ router.post("/", (req: Request, res: Response) => {
     db.run(
         "INSERT INTO generos (nome) VALUES (?)",
         [nome],
-        function (erro) {
+        function (this: sqlite3.RunResult, erro: Error | null) {
             if(erro) {
                 return res.status(500).json(
                     { erro: "Erro ao cadastrar gênero." }
@@ -50,7 +50,7 @@ router.put("/:id", (req : Request, res: Response) => {
     db.run(
         "UPDATE generos SET nome = ? WHERE id = ?",
         [nome, id],
-        function(erro) {
+        function(this: sqlite3.RunResult, erro: Error | null) {
             if(erro) {
                 return res.status(500).json(
                     { erro: "Erro ao atualizar gênero." }
@@ -75,7 +75,7 @@ router.delete("/:id", (req: Request, res: Response) => {
 
     db.run("DELETE FROM generos WHERE id = ?",
     [id],
-    function(erro){
+    function(this: sqlite3.RunResult, erro: Error | null){
         if(erro) {
             return res.status(500).json(
                 { erro: "Erro ao excluir gênero." }
@@ -98,7 +98,7 @@ router.get("/:id", (req: Request, res: Response) => {
 
     db.get("SELECT * FROM generos WHERE id = ?",
     [id],
-    function(erro, linha) {
+    function(erro: Error | null, linha: Genero | undefined) {
         if(erro) {
             return res.status(500).json(
                 { erro: "Erro ao buscar gênero." }
